@@ -1,4 +1,4 @@
-package handlers
+package tasks
 
 import (
 	"6ar8nas/test-app/util"
