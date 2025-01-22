@@ -1,7 +1,9 @@
 package main
 
 import (
-	"encoding/json"
+	"6ar8nas/test-app/handlers"
+	"6ar8nas/test-app/middleware"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -9,17 +11,16 @@ import (
 func main() {
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /ping", func(w http.ResponseWriter, r *http.Request) {
-		value, err := json.Marshal("Pong!")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(value)
-	})
+	router.HandleFunc("GET /task/{taskId}", handlers.GetTask)
+	router.HandleFunc("POST /task", handlers.PostTask)
+
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", 8080),
+		Handler: middleware.Logging(router),
+	}
 
 	log.Println("Starting server on port 8080")
-	http.ListenAndServe(":8080", router)
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatal(err)
+	}
 }
