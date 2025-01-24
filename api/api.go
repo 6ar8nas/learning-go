@@ -1,9 +1,8 @@
 package api
 
 import (
-	"6ar8nas/test-app/handlers"
 	"6ar8nas/test-app/middleware"
-	"database/sql"
+	"6ar8nas/test-app/services/task"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,11 +12,11 @@ type ApiServer struct {
 	*http.Server
 }
 
-func InitApiServer(db *sql.DB) *ApiServer {
+func InitApiServer() *ApiServer {
 	router := http.NewServeMux()
 
-	handlers.RegisterAuth(router)
-	handlers.RegisterTasks(router)
+	taskHandler := task.NewHandler()
+	taskHandler.RegisterRoutes(router)
 
 	return &ApiServer{
 		Server: &http.Server{
@@ -28,6 +27,6 @@ func InitApiServer(db *sql.DB) *ApiServer {
 }
 
 func (s *ApiServer) Start() error {
-	log.Printf("Starting server on port %s\n", s.Addr)
+	log.Println("Starting server on port", s.Addr)
 	return s.ListenAndServe()
 }

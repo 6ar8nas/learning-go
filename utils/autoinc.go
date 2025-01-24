@@ -1,4 +1,4 @@
-package util
+package utils
 
 import "sync"
 
@@ -7,7 +7,7 @@ type AutoIncrement struct {
 	id int
 }
 
-func (ai *AutoIncrement) Id() (id int) {
+func (ai *AutoIncrement) Next() (id int) {
 	ai.Lock()
 	defer ai.Unlock()
 

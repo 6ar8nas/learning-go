@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"6ar8nas/test-app/util"
-	"context"
+	"6ar8nas/test-app/types"
+	"6ar8nas/test-app/utils"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,7 +15,7 @@ type loggingResponseWriter struct {
 }
 
 func newLoggingResponseWriter(w http.ResponseWriter, requestId string) *loggingResponseWriter {
-	w.Header().Set(HeaderXRequestId, requestId)
+	w.Header().Set(types.HeaderXRequestId, requestId)
 	return &loggingResponseWriter{w, http.StatusContinue}
 }
 
@@ -24,11 +24,11 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 	lrw.ResponseWriter.WriteHeader(code)
 }
 
-var requestIdInc = util.AutoIncrement{}
+var requestIdInc = utils.AutoIncrement{}
 
 func assignRequestId(r *http.Request) (*http.Request, string) {
-	id := fmt.Sprintf("%d", requestIdInc.Id())
-	return r.WithContext(context.WithValue(r.Context(), ContextKeyRequestId, id)), id
+	id := fmt.Sprintf("%d", requestIdInc.Next())
+	return r.WithContext(utils.AssignContextValue(r.Context(), types.ContextKeyRequestId, id)), id
 }
 
 func Logging(next http.Handler) http.Handler {
