@@ -7,20 +7,15 @@ services:
       - ${PORT}:${PORT}
     environment:
       PORT: ${PORT}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_DATABASE}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_SCHEMA: ${DB_SCHEMA}
       DB_DRIVER: ${DB_DRIVER}
-      DB_MIGRATIONS: ${DB_MIGRATIONS}
+      DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
     volumes:
-      - ./database/migrations:/app/database/migrations
+      - migrations:/app/migrations
     networks:
       - internal
 
@@ -33,7 +28,7 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     healthcheck:
-      test: [ 'CMD-SHELL', 'pg_isready -U {DB_USERNAME} -d {DB_DATABASE}' ]
+      test: [ 'CMD-SHELL', 'pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}' ]
       interval: 3s
       timeout: 5s
       retries: 5
@@ -44,8 +39,23 @@ services:
     networks:
       - internal
 
+  migrate:
+    image: migrate/migrate:latest
+    environment:
+      DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
+    command: ["-path", "/migrations/", "-database", "${DB_CONNECTION_STRING}", "up"]
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - migrations:/migrations
+    networks:
+      - internal
+
+
 volumes:
   db-data:
+  migrations:
 
 networks:
   internal:

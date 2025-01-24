@@ -5,6 +5,7 @@ import (
 	"6ar8nas/test-app/database"
 	"6ar8nas/test-app/middleware"
 	"6ar8nas/test-app/services/tasks"
+	"6ar8nas/test-app/services/users"
 	"context"
 	"fmt"
 	"log"
@@ -22,9 +23,13 @@ type ApiServer struct {
 func InitApiServer(db *database.ConnectionPool) *ApiServer {
 	router := http.NewServeMux()
 
-	taskRepo := tasks.NewRepository(db)
-	taskHandler := tasks.NewHandler(taskRepo)
-	taskHandler.RegisterRoutes(router)
+	usersRepo := users.NewRepository(db)
+	usersHandler := users.NewHandler(usersRepo)
+	usersHandler.RegisterRoutes(router)
+
+	tasksRepo := tasks.NewRepository(db)
+	tasksHandler := tasks.NewHandler(tasksRepo)
+	tasksHandler.RegisterRoutes(router)
 
 	return &ApiServer{
 		Server: &http.Server{

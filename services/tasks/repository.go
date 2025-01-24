@@ -4,7 +4,6 @@ import (
 	"6ar8nas/test-app/database"
 	"6ar8nas/test-app/types"
 	"database/sql"
-	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -17,13 +16,27 @@ func NewRepository(database *database.ConnectionPool) *Repository {
 	return &Repository{ConnectionPool: database}
 }
 
+func (s *Repository) GetTasks() ([]*types.Task, error) {
+	rows, err := s.DB.Query("SELECT id, type, status, result, user_id FROM tasks")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return scanRows(rows)
+}
+
 func (s *Repository) GetTaskById(id uuid.UUID) (*types.Task, error) {
-	row := s.DB.QueryRow("SELECT * FROM tasks WHERE id = $1", id)
+	row := s.DB.QueryRow("SELECT id, type, status, result, user_id FROM tasks WHERE id = $1", id)
 	return scanRow(row)
 }
 
-func (s *Repository) CreateTask(req types.TaskCreateRequest) (*types.Task, error) {
-	row := s.DB.QueryRow("INSERT INTO tasks (type, status, result) VALUES ($1, $2, $3) RETURNING id, type, status, result", req.Type, types.Scheduled, "")
+func (s *Repository) CreateTask(userId uuid.UUID, req types.TaskCreateRequest) (*types.Task, error) {
+	row := s.DB.QueryRow("INSERT INTO tasks (type, status, result, user_id) VALUES ($1, $2, $3, $4) RETURNING id, type, status, result, user_id", req.Type, types.Scheduled, nil, userId)
+	return scanRow(row)
+}
+
+func (s *Repository) UpdateTask(id uuid.UUID, req types.TaskUpdateRequest) (*types.Task, error) {
+	row := s.DB.QueryRow("UPDATE tasks SET status = COALESCE($2, status), result = COALESCE($3, result) WHERE id = $1 RETURNING id, type, status, result, user_id", id, req.Status, req.Result)
 	return scanRow(row)
 }
 
@@ -34,12 +47,35 @@ func scanRow(row *sql.Row) (*types.Task, error) {
 		&task.Type,
 		&task.Status,
 		&task.Result,
+		&task.UserId,
 	); err {
 	case nil:
 		return task, nil
 	case sql.ErrNoRows:
-		return nil, fmt.Errorf("requested task does not exist")
+		return nil, types.ErrorNotFound
 	default:
 		return nil, err
 	}
+}
+
+func scanRows(rows *sql.Rows) ([]*types.Task, error) {
+	tasks := make([]*types.Task, 0)
+	for rows.Next() {
+		task := new(types.Task)
+		if err := rows.Scan(
+			&task.Id,
+			&task.Type,
+			&task.Status,
+			&task.Result,
+			&task.UserId,
+		); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }

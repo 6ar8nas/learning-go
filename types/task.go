@@ -20,9 +20,16 @@ type Task struct {
 	Id     uuid.UUID  `json:"id"`
 	Type   TaskType   `json:"type"`
 	Status TaskStatus `json:"status"`
-	Result string     `json:"result"`
+	Result *string    `json:"result,omitempty"`
+	UserId string     `json:"-"`
 }
 
 type TaskCreateRequest struct {
-	Type TaskType `json:"type"`
+	UserId uuid.UUID `json:"userId"` // TODO: acquire userId from token
+	Type   TaskType  `json:"type"`
+}
+
+type TaskUpdateRequest struct {
+	Status *TaskStatus `json:"status,omitempty"`
+	Result *string     `json:"result,omitempty"`
 }

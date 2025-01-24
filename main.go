@@ -14,10 +14,6 @@ func main() {
 	}
 	defer db.Close()
 
-	if err := db.Migrate(); err != nil {
-		panic(fmt.Sprintf("database migration error: %v", err))
-	}
-
 	server := api.InitApiServer(db)
 
 	done := make(chan bool)
