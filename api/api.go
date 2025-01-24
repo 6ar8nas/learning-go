@@ -1,30 +1,38 @@
 package api
 
 import (
+	"6ar8nas/test-app/config"
+	"6ar8nas/test-app/database"
 	"6ar8nas/test-app/middleware"
-	"6ar8nas/test-app/services/task"
-	"database/sql"
+	"6ar8nas/test-app/services/tasks"
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 type ApiServer struct {
 	*http.Server
-	db *sql.DB
+	db *database.ConnectionPool
 }
 
-func InitApiServer(db *sql.DB) *ApiServer {
+func InitApiServer(db *database.ConnectionPool) *ApiServer {
 	router := http.NewServeMux()
 
-	taskRepo := task.NewRepository(db)
-	taskHandler := task.NewHandler(taskRepo)
+	taskRepo := tasks.NewRepository(db)
+	taskHandler := tasks.NewHandler(taskRepo)
 	taskHandler.RegisterRoutes(router)
 
 	return &ApiServer{
 		Server: &http.Server{
-			Addr:    fmt.Sprintf("%s:%s", Env.Host, Env.Port),
-			Handler: middleware.Logging(router),
+			Addr:         fmt.Sprintf(":%s", config.Port),
+			Handler:      middleware.Logging(router),
+			IdleTimeout:  time.Minute,
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 30 * time.Second,
 		},
 		db: db,
 	}
@@ -33,4 +41,26 @@ func InitApiServer(db *sql.DB) *ApiServer {
 func (s *ApiServer) Start() error {
 	log.Println("Starting server on port", s.Addr)
 	return s.ListenAndServe()
+}
+
+func (s *ApiServer) GracefulShutdown(done chan bool) {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	// Listen for SIGINT
+	<-ctx.Done()
+
+	log.Println("Shutting down gracefully")
+
+	// Allowing up to 5 seconds to finish server's requests
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := s.Shutdown(ctx); err != nil {
+		log.Printf("Server forced to shutdown with error: %v", err)
+	}
+
+	log.Println("Server exiting")
+
+	// Alert the main thread about a shutdown
+	done <- true
 }

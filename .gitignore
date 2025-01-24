@@ -1,4 +1,10 @@
-*
-!/**/
-!*.*
-!Dockerfile
+*.test
+*.out
+*.exe
+*.exe~
+
+.vscode
+go.work
+
+.env
+main

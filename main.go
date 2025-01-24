@@ -3,24 +3,29 @@ package main
 import (
 	"6ar8nas/test-app/api"
 	"6ar8nas/test-app/database"
-	"6ar8nas/test-app/database/migrations"
-	"log"
+	"fmt"
+	"net/http"
 )
 
 func main() {
-	db, err := database.InitDatabaseConnection()
+	db, err := database.NewService()
 	if err != nil {
-		log.Fatal(err)
+		panic(fmt.Sprintf("database connection error: %v", err))
 	}
 	defer db.Close()
 
-	if err := migrations.NewDriverDB(db).Migrate(); err != nil {
-		log.Fatal(err)
+	if err := db.Migrate(); err != nil {
+		panic(fmt.Sprintf("database migration error: %v", err))
 	}
 
 	server := api.InitApiServer(db)
-	if err := server.Start(); err != nil {
-		log.Fatal(err)
+
+	done := make(chan bool)
+	go server.GracefulShutdown(done)
+
+	if err := server.Start(); err != nil && err != http.ErrServerClosed {
+		panic(fmt.Sprintf("http server error: %v", err))
 	}
-	defer server.Close()
+
+	<-done
 }

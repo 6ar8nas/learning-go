@@ -1,4 +1,4 @@
-package task
+package tasks
 
 import (
 	"6ar8nas/test-app/types"
