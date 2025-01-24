@@ -1,7 +1,30 @@
 services:
-
   api:
     build: .
     ports:
       - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
     restart: always
+    volumes:
+      - ./database/migrations:/app/database/migrations
+
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_DB=postgresdb
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d postgresdb" ]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
+
+volumes:
+  db-data:

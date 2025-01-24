@@ -9,11 +9,11 @@ import (
 )
 
 type Handler struct {
-	cache *utils.Cache[uuid.UUID, types.Task]
+	repository types.TaskRepository
 }
 
-func NewHandler() *Handler {
-	return &Handler{cache: utils.NewCache[uuid.UUID, types.Task]()}
+func NewHandler(repository types.TaskRepository) *Handler {
+	return &Handler{repository: repository}
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
@@ -28,9 +28,9 @@ func (h *Handler) GetTaskById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, exists := h.cache.Get(id)
-	if !exists {
-		utils.WriteErrorJSON(w, http.StatusNotFound, "Expected task doesn't exist")
+	task, err := h.repository.GetTaskById(id)
+	if err != nil {
+		utils.WriteErrorJSON(w, http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -47,8 +47,11 @@ func (h *Handler) PostTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := types.Task{Id: uuid.New(), Type: req.Type, Status: types.Scheduled, Result: ""}
-	h.cache.Set(task.Id, task)
+	task, err := h.repository.CreateTask(req)
+	if err != nil {
+		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	if err := utils.WriteJSON(w, http.StatusOK, &task); err != nil {
 		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
