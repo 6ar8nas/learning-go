@@ -5,8 +5,8 @@ import (
 	"context"
 )
 
-func GetContextValue(ctx context.Context, key string) string {
-	return ctx.Value(key).(string)
+func GetContextValue(ctx context.Context, key types.ContextKey) any {
+	return ctx.Value(key)
 }
 
 func AssignContextValue(ctx context.Context, key types.ContextKey, value any) context.Context {

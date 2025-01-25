@@ -1,16 +1,14 @@
 package types
 
 import (
-	"errors"
-
 	"github.com/google/uuid"
 )
 
 type TaskRepository interface {
-	GetTasks() ([]*Task, error)
-	GetTaskById(id uuid.UUID) (*Task, error)
+	GetTasks(userId uuid.UUID, isAdmin bool) ([]*Task, error)
+	GetTaskById(id uuid.UUID, userId uuid.UUID, isAdmin bool) (*Task, error)
 	CreateTask(userId uuid.UUID, task TaskCreateRequest) (*Task, error)
-	UpdateTask(id uuid.UUID, task TaskUpdateRequest) (*Task, error)
+	UpdateTask(id uuid.UUID, userId uuid.UUID, isAdmin bool, task TaskUpdateRequest) (*Task, error)
 }
 
 type UserRepository interface {
@@ -19,5 +17,3 @@ type UserRepository interface {
 	GetUserById(id uuid.UUID) (*User, error)
 	CreateUser(req UserHashedAuthRequest) (*User, error)
 }
-
-var ErrorNotFound = errors.New("requested resource doesn't exist")

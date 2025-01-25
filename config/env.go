@@ -11,4 +11,5 @@ var (
 	Database         = os.Getenv("DB_DATABASE")
 	Driver           = os.Getenv("DB_DRIVER")
 	ConnectionString = os.Getenv("DB_CONNECTION_STRING")
+	AuthSecret       = []byte(os.Getenv("AUTH_SECRET"))
 )

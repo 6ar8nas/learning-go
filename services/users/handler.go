@@ -1,6 +1,8 @@
 package users
 
 import (
+	"6ar8nas/test-app/auth"
+	"6ar8nas/test-app/config"
 	"6ar8nas/test-app/types"
 	"6ar8nas/test-app/utils"
 	"net/http"
@@ -46,12 +48,18 @@ func (h *Handler) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if correct := utils.VerifyPassword(req.Password, user.Password); !correct {
+	if correct := auth.VerifyPassword(req.Password, user.Password); !correct {
 		utils.WriteErrorJSON(w, http.StatusBadRequest, "Wrong login credentials.")
 		return
 	}
 
-	if err := utils.WriteJSON(w, http.StatusOK, &types.UserAuthResponse{AuthToken: ":)"}); err != nil { // TODO: return proper token
+	authToken, err := auth.GenerateToken(user.Id, user.Admin, config.AuthSecret)
+	if err != nil {
+		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := utils.WriteJSON(w, http.StatusOK, &types.UserAuthResponse{AuthToken: authToken}); err != nil { // TODO: return proper token
 		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -64,7 +72,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := utils.HashPassword(req.Password)
+	hashedPassword, err := auth.HashPassword(req.Password)
 	if err != nil {
 		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return

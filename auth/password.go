@@ -1,4 +1,4 @@
-package utils
+package auth
 
 import (
 	"6ar8nas/test-app/types"

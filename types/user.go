@@ -24,5 +24,5 @@ type UserHashedAuthRequest struct {
 }
 
 type UserAuthResponse struct {
-	AuthToken string `json:"auth_token"` // TODO: JWT
+	AuthToken string `json:"auth_token"`
 }

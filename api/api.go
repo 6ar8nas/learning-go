@@ -34,7 +34,7 @@ func InitApiServer(db *database.ConnectionPool) *ApiServer {
 	return &ApiServer{
 		Server: &http.Server{
 			Addr:         fmt.Sprintf(":%s", config.Port),
-			Handler:      middleware.Logging(router),
+			Handler:      middleware.Logging(middleware.Authenticate(router)),
 			IdleTimeout:  time.Minute,
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 30 * time.Second,

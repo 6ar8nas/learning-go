@@ -25,8 +25,7 @@ type Task struct {
 }
 
 type TaskCreateRequest struct {
-	UserId uuid.UUID `json:"userId"` // TODO: acquire userId from token
-	Type   TaskType  `json:"type"`
+	Type TaskType `json:"type"`
 }
 
 type TaskUpdateRequest struct {

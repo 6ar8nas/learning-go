@@ -24,7 +24,10 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 }
 
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
-	tasks, err := h.repository.GetTasks()
+	ctx := r.Context()
+	userId := utils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
+	isAdmin := utils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
+	tasks, err := h.repository.GetTasks(userId, isAdmin)
 	if err != nil {
 		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -43,7 +46,10 @@ func (h *Handler) GetTaskById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.repository.GetTaskById(id)
+	ctx := r.Context()
+	userId := utils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
+	isAdmin := utils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
+	task, err := h.repository.GetTaskById(id, userId, isAdmin)
 	if err != nil {
 		utils.WriteErrorJSON(w, http.StatusNotFound, err.Error())
 		return
@@ -62,7 +68,8 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.repository.CreateTask(req.UserId, req)
+	userId := utils.GetContextValue(r.Context(), types.ContextKeyUserId).(uuid.UUID)
+	task, err := h.repository.CreateTask(userId, req)
 	if err != nil {
 		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -87,7 +94,10 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.repository.UpdateTask(id, req)
+	ctx := r.Context()
+	userId := utils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
+	isAdmin := utils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
+	task, err := h.repository.UpdateTask(id, userId, isAdmin, req)
 	if err != nil {
 		switch err {
 		case types.ErrorNotFound:

@@ -16,8 +16,8 @@ func NewRepository(database *database.ConnectionPool) *Repository {
 	return &Repository{ConnectionPool: database}
 }
 
-func (s *Repository) GetTasks() ([]*types.Task, error) {
-	rows, err := s.DB.Query("SELECT id, type, status, result, user_id FROM tasks")
+func (s *Repository) GetTasks(userId uuid.UUID, isAdmin bool) ([]*types.Task, error) {
+	rows, err := s.DB.Query("SELECT id, type, status, result, user_id FROM tasks WHERE user_id = $1 OR $2", userId, isAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +25,8 @@ func (s *Repository) GetTasks() ([]*types.Task, error) {
 	return scanRows(rows)
 }
 
-func (s *Repository) GetTaskById(id uuid.UUID) (*types.Task, error) {
-	row := s.DB.QueryRow("SELECT id, type, status, result, user_id FROM tasks WHERE id = $1", id)
+func (s *Repository) GetTaskById(id uuid.UUID, userId uuid.UUID, isAdmin bool) (*types.Task, error) {
+	row := s.DB.QueryRow("SELECT id, type, status, result, user_id FROM tasks WHERE id = $1 and (user_id = $2 OR $3)", id, userId, isAdmin)
 	return scanRow(row)
 }
 
@@ -35,8 +35,8 @@ func (s *Repository) CreateTask(userId uuid.UUID, req types.TaskCreateRequest) (
 	return scanRow(row)
 }
 
-func (s *Repository) UpdateTask(id uuid.UUID, req types.TaskUpdateRequest) (*types.Task, error) {
-	row := s.DB.QueryRow("UPDATE tasks SET status = COALESCE($2, status), result = COALESCE($3, result) WHERE id = $1 RETURNING id, type, status, result, user_id", id, req.Status, req.Result)
+func (s *Repository) UpdateTask(id uuid.UUID, userId uuid.UUID, isAdmin bool, req types.TaskUpdateRequest) (*types.Task, error) {
+	row := s.DB.QueryRow("UPDATE tasks SET status = COALESCE($4, status), result = COALESCE($5, result) WHERE id = $1 and (user_id = $2 OR $3) RETURNING id, type, status, result, user_id", id, userId, isAdmin, req.Status, req.Result)
 	return scanRow(row)
 }
 
