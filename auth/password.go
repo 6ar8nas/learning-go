@@ -1,8 +1,7 @@
 package auth
 
 import (
-	"6ar8nas/test-app/types"
-
+	"github.com/6ar8nas/learning-go/types"
 	"golang.org/x/crypto/bcrypt"
 )
 

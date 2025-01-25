@@ -1,11 +1,6 @@
 package api
 
 import (
-	"6ar8nas/test-app/config"
-	"6ar8nas/test-app/database"
-	"6ar8nas/test-app/middleware"
-	"6ar8nas/test-app/services/tasks"
-	"6ar8nas/test-app/services/users"
 	"context"
 	"fmt"
 	"log"
@@ -13,6 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/6ar8nas/learning-go/config"
+	"github.com/6ar8nas/learning-go/database"
+	"github.com/6ar8nas/learning-go/middleware"
+	"github.com/6ar8nas/learning-go/services/tasks"
+	"github.com/6ar8nas/learning-go/services/users"
 )
 
 type ApiServer struct {

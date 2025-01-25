@@ -1,10 +1,11 @@
 package main
 
 import (
-	"6ar8nas/test-app/api"
-	"6ar8nas/test-app/database"
 	"fmt"
 	"net/http"
+
+	"github.com/6ar8nas/learning-go/api"
+	"github.com/6ar8nas/learning-go/database"
 )
 
 func main() {

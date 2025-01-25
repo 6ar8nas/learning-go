@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"6ar8nas/test-app/types"
 	"time"
 
+	"github.com/6ar8nas/learning-go/types"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )

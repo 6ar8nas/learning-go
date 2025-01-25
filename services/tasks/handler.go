@@ -1,10 +1,10 @@
 package tasks
 
 import (
-	"6ar8nas/test-app/types"
-	"6ar8nas/test-app/utils"
 	"net/http"
 
+	"github.com/6ar8nas/learning-go/types"
+	"github.com/6ar8nas/learning-go/utils"
 	"github.com/google/uuid"
 )
 

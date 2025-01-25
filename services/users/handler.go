@@ -1,11 +1,12 @@
 package users
 
 import (
-	"6ar8nas/test-app/auth"
-	"6ar8nas/test-app/config"
-	"6ar8nas/test-app/types"
-	"6ar8nas/test-app/utils"
 	"net/http"
+
+	"github.com/6ar8nas/learning-go/auth"
+	"github.com/6ar8nas/learning-go/config"
+	"github.com/6ar8nas/learning-go/types"
+	"github.com/6ar8nas/learning-go/utils"
 )
 
 type Handler struct {

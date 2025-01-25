@@ -1,10 +1,10 @@
 package database
 
 import (
-	"6ar8nas/test-app/config"
 	"database/sql"
 	"log"
 
+	"github.com/6ar8nas/learning-go/config"
 	_ "github.com/lib/pq"
 )
 

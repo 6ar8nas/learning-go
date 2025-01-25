@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"6ar8nas/test-app/auth"
-	"6ar8nas/test-app/config"
-	"6ar8nas/test-app/types"
-	"6ar8nas/test-app/utils"
 	"net/http"
 	"strings"
 
+	"github.com/6ar8nas/learning-go/auth"
+	"github.com/6ar8nas/learning-go/config"
+	"github.com/6ar8nas/learning-go/types"
+	"github.com/6ar8nas/learning-go/utils"
 	"github.com/google/uuid"
 )
 

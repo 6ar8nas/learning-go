@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"6ar8nas/test-app/types"
 	"context"
+
+	"github.com/6ar8nas/learning-go/types"
 )
 
 func GetContextValue(ctx context.Context, key types.ContextKey) any {

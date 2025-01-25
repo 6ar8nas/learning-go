@@ -1,10 +1,10 @@
 package users
 
 import (
-	"6ar8nas/test-app/database"
-	"6ar8nas/test-app/types"
 	"database/sql"
 
+	"github.com/6ar8nas/learning-go/database"
+	"github.com/6ar8nas/learning-go/types"
 	"github.com/google/uuid"
 )
 

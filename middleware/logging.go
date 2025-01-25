@@ -1,12 +1,13 @@
 package middleware
 
 import (
-	"6ar8nas/test-app/types"
-	"6ar8nas/test-app/utils"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/6ar8nas/learning-go/types"
+	"github.com/6ar8nas/learning-go/utils"
 )
 
 type loggingResponseWriter struct {
