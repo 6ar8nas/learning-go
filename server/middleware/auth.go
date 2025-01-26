@@ -4,16 +4,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/6ar8nas/learning-go/server/auth"
+	"github.com/6ar8nas/learning-go/auth"
 	"github.com/6ar8nas/learning-go/server/config"
 	"github.com/6ar8nas/learning-go/server/types"
-	"github.com/6ar8nas/learning-go/server/utils"
+	sharedTypes "github.com/6ar8nas/learning-go/shared/types"
+	sharedUtils "github.com/6ar8nas/learning-go/shared/utils"
 	"github.com/google/uuid"
 )
 
 var secretKey = config.AuthSecret
-
-const BEARER_SCHEMA = "Bearer"
 
 func Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -24,25 +23,25 @@ func Authenticate(next http.Handler) http.Handler {
 
 		tokenString, err := getToken(r)
 		if err != nil {
-			utils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
+			sharedUtils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
 		claims, err := auth.VerifyToken(tokenString, secretKey)
 		if err != nil {
-			utils.WriteErrorJSON(w, http.StatusForbidden, err.Error())
+			sharedUtils.WriteErrorJSON(w, http.StatusForbidden, err.Error())
 			return
 		}
 
 		userId := uuid.MustParse(claims[types.ClaimsKeyUserId].(string))
 		isAdmin := claims[types.ClaimsKeyIsAdmin].(bool)
 		if !isAdmin && strings.Contains(r.URL.Path, "/users") {
-			utils.WriteErrorJSON(w, http.StatusForbidden, types.ErrorPermissionDenied.Error())
+			sharedUtils.WriteErrorJSON(w, http.StatusForbidden, sharedTypes.ErrorPermissionDenied.Error())
 			return
 		}
 
-		ctx := utils.AssignContextValue(r.Context(), types.ContextKeyUserId, userId)
-		ctx = utils.AssignContextValue(ctx, types.ContextKeyIsAdmin, isAdmin)
+		ctx := sharedUtils.AssignContextValue(r.Context(), types.ContextKeyUserId, userId)
+		ctx = sharedUtils.AssignContextValue(ctx, types.ContextKeyIsAdmin, isAdmin)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -51,8 +50,8 @@ func getToken(r *http.Request) (string, error) {
 	tokenAuth := r.Header.Get("Authorization")
 
 	if len(tokenAuth) > 40 { // We can safely assume token will be at least
-		return tokenAuth[(len(BEARER_SCHEMA) + 1):], nil
+		return tokenAuth[(len(auth.BearerSchema) + 1):], nil
 	}
 
-	return "", types.ErrorAuthenticationHeaderMissing
+	return "", sharedTypes.ErrorAuthenticationHeaderMissing
 }

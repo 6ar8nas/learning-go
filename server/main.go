@@ -4,18 +4,19 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/6ar8nas/learning-go/database"
 	"github.com/6ar8nas/learning-go/server/api"
-	"github.com/6ar8nas/learning-go/server/database"
+	"github.com/6ar8nas/learning-go/server/config"
 )
 
 func main() {
-	db, err := database.NewService()
+	db, err := database.NewConnection(config.Driver, config.ConnectionString, config.Database)
 	if err != nil {
 		panic(fmt.Sprintf("database connection error: %v", err))
 	}
 	defer db.Close()
 
-	server := api.InitApiServer(db)
+	server := api.InitApiServer(config.Port, db)
 
 	done := make(chan bool)
 	go server.GracefulShutdown(done)

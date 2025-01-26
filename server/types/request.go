@@ -1,12 +1,9 @@
 package types
 
-const HeaderXRequestId = "X-Request-Id"
+import (
+	sharedTypes "github.com/6ar8nas/learning-go/shared/types"
+)
 
-type ContextKey string
-
-const ContextKeyRequestId ContextKey = "request_id"
-const ContextKeyUserId ContextKey = "user_id"
-const ContextKeyIsAdmin ContextKey = "is_admin"
-
-const ClaimsKeyUserId string = "user_id"
-const ClaimsKeyIsAdmin string = "is_admin"
+const ContextKeyUserId sharedTypes.ContextKey = "user_id"
+const ContextKeyIsAdmin sharedTypes.ContextKey = "is_admin"
+const ContextKeyRequestId sharedTypes.ContextKey = "request_id"

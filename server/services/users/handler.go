@@ -3,10 +3,11 @@ package users
 import (
 	"net/http"
 
-	"github.com/6ar8nas/learning-go/server/auth"
+	"github.com/6ar8nas/learning-go/auth"
 	"github.com/6ar8nas/learning-go/server/config"
 	"github.com/6ar8nas/learning-go/server/types"
-	"github.com/6ar8nas/learning-go/server/utils"
+	sharedTypes "github.com/6ar8nas/learning-go/shared/types"
+	sharedUtils "github.com/6ar8nas/learning-go/shared/utils"
 )
 
 type Handler struct {
@@ -26,67 +27,70 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.repository.GetUsers()
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := utils.WriteJSON(w, http.StatusOK, &users); err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+	if err := sharedUtils.WriteJSON(w, http.StatusOK, &users); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 }
 
 func (h *Handler) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
-	var req types.UserAuthRequest
-	if err := utils.ParseJSON(r, &req); err != nil {
-		utils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
+	var req sharedTypes.UserAuthRequest
+	if err := sharedUtils.ParseJSON(r, &req); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := h.repository.GetUserByUsername(req.Username)
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusNotFound, err.Error())
+		sharedUtils.WriteErrorJSON(w, http.StatusNotFound, err.Error())
 		return
 	}
 
-	if correct := auth.VerifyPassword(req.Password, user.Password); !correct {
-		utils.WriteErrorJSON(w, http.StatusBadRequest, "Wrong login credentials.")
+	if correct := VerifyPassword(req.Password, user.Password); !correct {
+		sharedUtils.WriteErrorJSON(w, http.StatusBadRequest, "Wrong login credentials.")
 		return
 	}
 
-	authToken, err := auth.GenerateToken(user.Id, user.Admin, config.AuthSecret)
+	claims := make(map[string]interface{})
+	claims[types.ClaimsKeyUserId] = user.Id
+	claims[types.ClaimsKeyIsAdmin] = user.Admin
+	authToken, err := auth.GenerateToken(claims, config.AuthSecret)
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := utils.WriteJSON(w, http.StatusOK, &types.UserAuthResponse{AuthToken: authToken}); err != nil { // TODO: return proper token
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+	if err := sharedUtils.WriteJSON(w, http.StatusOK, &sharedTypes.UserAuthResponse{AuthToken: authToken}); err != nil { // TODO: return proper token
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 }
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var req types.UserAuthRequest
-	if err := utils.ParseJSON(r, &req); err != nil {
-		utils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
+	var req sharedTypes.UserAuthRequest
+	if err := sharedUtils.ParseJSON(r, &req); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	hashedPassword, err := auth.HashPassword(req.Password)
+	hashedPassword, err := HashPassword(req.Password)
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	user, err := h.repository.CreateUser(types.UserHashedAuthRequest{Username: req.Username, Password: hashedPassword})
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := utils.WriteJSON(w, http.StatusCreated, &user); err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+	if err := sharedUtils.WriteJSON(w, http.StatusCreated, &user); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 }

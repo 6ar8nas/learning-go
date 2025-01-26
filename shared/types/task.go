@@ -16,14 +16,6 @@ const (
 	Complete  TaskStatus = "Complete"
 )
 
-type Task struct {
-	Id     uuid.UUID  `json:"id"`
-	Type   TaskType   `json:"type"`
-	Status TaskStatus `json:"status"`
-	Result *string    `json:"result,omitempty"`
-	UserId string     `json:"-"`
-}
-
 type TaskCreateRequest struct {
 	Type TaskType `json:"type"`
 }
@@ -31,4 +23,12 @@ type TaskCreateRequest struct {
 type TaskUpdateRequest struct {
 	Status *TaskStatus `json:"status,omitempty"`
 	Result *string     `json:"result,omitempty"`
+}
+
+type Task struct {
+	Id     uuid.UUID  `json:"id"`
+	Type   TaskType   `json:"type"`
+	Status TaskStatus `json:"status"`
+	Result *string    `json:"result,omitempty"`
+	UserId string     `json:"-"`
 }

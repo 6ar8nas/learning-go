@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/6ar8nas/learning-go/server/types"
-	"github.com/6ar8nas/learning-go/server/utils"
+	sharedTypes "github.com/6ar8nas/learning-go/shared/types"
+	sharedUtils "github.com/6ar8nas/learning-go/shared/utils"
 	"github.com/google/uuid"
 )
 
@@ -25,16 +26,16 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userId := utils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
-	isAdmin := utils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
+	userId := sharedUtils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
+	isAdmin := sharedUtils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
 	tasks, err := h.repository.GetTasks(userId, isAdmin)
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := utils.WriteJSON(w, http.StatusOK, &tasks); err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+	if err := sharedUtils.WriteJSON(w, http.StatusOK, &tasks); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 }
@@ -42,41 +43,41 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetTaskById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusBadRequest, "Expected id to be a valid UUID")
+		sharedUtils.WriteErrorJSON(w, http.StatusBadRequest, "Expected id to be a valid UUID")
 		return
 	}
 
 	ctx := r.Context()
-	userId := utils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
-	isAdmin := utils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
+	userId := sharedUtils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
+	isAdmin := sharedUtils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
 	task, err := h.repository.GetTaskById(id, userId, isAdmin)
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusNotFound, err.Error())
+		sharedUtils.WriteErrorJSON(w, http.StatusNotFound, err.Error())
 		return
 	}
 
-	if err := utils.WriteJSON(w, http.StatusOK, &task); err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+	if err := sharedUtils.WriteJSON(w, http.StatusOK, &task); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 }
 
 func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
-	var req types.TaskCreateRequest
-	if err := utils.ParseJSON(r, &req); err != nil {
-		utils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
+	var req sharedTypes.TaskCreateRequest
+	if err := sharedUtils.ParseJSON(r, &req); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userId := utils.GetContextValue(r.Context(), types.ContextKeyUserId).(uuid.UUID)
+	userId := sharedUtils.GetContextValue(r.Context(), types.ContextKeyUserId).(uuid.UUID)
 	task, err := h.repository.CreateTask(userId, req)
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := utils.WriteJSON(w, http.StatusCreated, &task); err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+	if err := sharedUtils.WriteJSON(w, http.StatusCreated, &task); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 }
@@ -84,32 +85,32 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		utils.WriteErrorJSON(w, http.StatusBadRequest, "Expected id to be a valid UUID")
+		sharedUtils.WriteErrorJSON(w, http.StatusBadRequest, "Expected id to be a valid UUID")
 		return
 	}
 
-	var req types.TaskUpdateRequest
-	if err := utils.ParseJSON(r, &req); err != nil {
-		utils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
+	var req sharedTypes.TaskUpdateRequest
+	if err := sharedUtils.ParseJSON(r, &req); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	ctx := r.Context()
-	userId := utils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
-	isAdmin := utils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
+	userId := sharedUtils.GetContextValue(ctx, types.ContextKeyUserId).(uuid.UUID)
+	isAdmin := sharedUtils.GetContextValue(ctx, types.ContextKeyIsAdmin).(bool)
 	task, err := h.repository.UpdateTask(id, userId, isAdmin, req)
 	if err != nil {
 		switch err {
-		case types.ErrorNotFound:
-			utils.WriteErrorJSON(w, http.StatusNotFound, err.Error())
+		case sharedTypes.ErrorNotFound:
+			sharedUtils.WriteErrorJSON(w, http.StatusNotFound, err.Error())
 		default:
-			utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+			sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
 
-	if err := utils.WriteJSON(w, http.StatusOK, &task); err != nil {
-		utils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
+	if err := sharedUtils.WriteJSON(w, http.StatusOK, &task); err != nil {
+		sharedUtils.WriteErrorJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 }

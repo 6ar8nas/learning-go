@@ -3,26 +3,27 @@ package auth
 import (
 	"time"
 
-	"github.com/6ar8nas/learning-go/server/types"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 )
 
-const TokenExpiryDuration = time.Hour * 1
+const BearerSchema = "Bearer"
+const tokenExpiryDuration = time.Hour * 1
 
-func GenerateToken(userId uuid.UUID, isAdmin bool, secretKey []byte) (string, error) {
-	claims := jwt.MapClaims{}
-	claims[types.ClaimsKeyUserId] = userId
-	claims[types.ClaimsKeyIsAdmin] = isAdmin
-	claims["exp"] = time.Now().Add(TokenExpiryDuration).Unix()
+func GenerateToken(claims map[string]interface{}, secretKey []byte) (string, error) {
+	jwtClaims := jwt.MapClaims(claims)
+	jwtClaims["exp"] = time.Now().Add(tokenExpiryDuration).Unix()
 
-	return signString(claims, secretKey)
+	return signString(jwtClaims, secretKey)
 }
 
-func VerifyToken(tokenString string, secretKey []byte) (jwt.MapClaims, error) {
+func VerifyToken(tokenString string, secretKey []byte) (map[string]interface{}, error) {
+	return verifyToken(tokenString, secretKey)
+}
+
+func verifyToken(tokenString string, secretKey []byte) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, types.ErrorInvalidCredentials
+			return nil, ErrorInvalidCredentials
 		}
 		return secretKey, nil
 	})
@@ -33,17 +34,17 @@ func VerifyToken(tokenString string, secretKey []byte) (jwt.MapClaims, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return claims, nil
 	} else {
-		return nil, types.ErrorInvalidCredentials
+		return nil, ErrorInvalidCredentials
 	}
 }
 
 func RefreshToken(tokenString string, secretKey []byte) (string, error) {
-	claims, err := VerifyToken(tokenString, secretKey)
+	claims, err := verifyToken(tokenString, secretKey)
 	if err != nil {
 		return "", err
 	}
 
-	claims["exp"] = time.Now().Add(TokenExpiryDuration).Unix()
+	claims["exp"] = time.Now().Add(tokenExpiryDuration).Unix()
 	return signString(claims, secretKey)
 }
 
