@@ -3,7 +3,7 @@ package utils
 import (
 	"context"
 
-	"github.com/6ar8nas/learning-go/types"
+	"github.com/6ar8nas/learning-go/server/types"
 )
 
 func GetContextValue(ctx context.Context, key types.ContextKey) any {

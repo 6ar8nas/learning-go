@@ -3,8 +3,8 @@ package tasks
 import (
 	"database/sql"
 
-	"github.com/6ar8nas/learning-go/database"
-	"github.com/6ar8nas/learning-go/types"
+	"github.com/6ar8nas/learning-go/server/database"
+	"github.com/6ar8nas/learning-go/server/types"
 	"github.com/google/uuid"
 )
 

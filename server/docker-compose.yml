@@ -43,7 +43,7 @@ services:
     image: migrate/migrate:latest
     environment:
       DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
-    command: ["-path", "/migrations/", "-database", "${DB_CONNECTION_STRING}", "up"]
+    command: ['-path', '/migrations/', '-database', '${DB_CONNECTION_STRING}', 'up']
     depends_on:
       db:
         condition: service_healthy

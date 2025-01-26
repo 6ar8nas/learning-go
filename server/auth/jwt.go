@@ -3,7 +3,7 @@ package auth
 import (
 	"time"
 
-	"github.com/6ar8nas/learning-go/types"
+	"github.com/6ar8nas/learning-go/server/types"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )

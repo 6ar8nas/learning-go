@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/6ar8nas/learning-go/config"
-	"github.com/6ar8nas/learning-go/database"
-	"github.com/6ar8nas/learning-go/middleware"
-	"github.com/6ar8nas/learning-go/services/tasks"
-	"github.com/6ar8nas/learning-go/services/users"
+	"github.com/6ar8nas/learning-go/server/config"
+	"github.com/6ar8nas/learning-go/server/database"
+	"github.com/6ar8nas/learning-go/server/middleware"
+	"github.com/6ar8nas/learning-go/server/services/tasks"
+	"github.com/6ar8nas/learning-go/server/services/users"
 )
 
 type ApiServer struct {

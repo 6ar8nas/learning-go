@@ -3,8 +3,8 @@ package tasks
 import (
 	"net/http"
 
-	"github.com/6ar8nas/learning-go/types"
-	"github.com/6ar8nas/learning-go/utils"
+	"github.com/6ar8nas/learning-go/server/types"
+	"github.com/6ar8nas/learning-go/server/utils"
 	"github.com/google/uuid"
 )
 

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/6ar8nas/learning-go/config"
+	"github.com/6ar8nas/learning-go/server/config"
 	_ "github.com/lib/pq"
 )
 

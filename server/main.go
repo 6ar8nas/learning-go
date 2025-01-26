@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/6ar8nas/learning-go/api"
-	"github.com/6ar8nas/learning-go/database"
+	"github.com/6ar8nas/learning-go/server/api"
+	"github.com/6ar8nas/learning-go/server/database"
 )
 
 func main() {

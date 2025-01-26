@@ -1,4 +1,4 @@
-module github.com/6ar8nas/learning-go
+module github.com/6ar8nas/learning-go/server
 
 go 1.23.5
 
