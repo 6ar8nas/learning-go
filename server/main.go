@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	db, err := database.NewConnection(config.Driver, config.ConnectionString, config.Database)
+	db, err := database.NewConnection(config.Driver, config.DBConnectionString, config.Database)
 	if err != nil {
 		panic(fmt.Sprintf("database connection error: %v", err))
 	}

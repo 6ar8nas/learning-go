@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:alpine AS builder
 WORKDIR /app
 COPY go.work go.work.sum ./
 COPY server/go.mod server/go.sum ./server/
@@ -6,6 +6,7 @@ COPY api/go.mod api/go.sum ./api/
 COPY auth/go.mod auth/go.sum ./auth/
 COPY database/go.mod database/go.sum ./database/
 COPY shared/go.mod shared/go.sum ./shared/
+COPY worker/go.mod worker/go.sum ./worker/
 RUN go work sync && go mod download all
 COPY . .
 

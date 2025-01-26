@@ -1,12 +1,13 @@
 services:
   api:
     build:
-      context: ../
+      context: .
       dockerfile: server/Dockerfile
     ports:
       - ${PORT}:${PORT}
     environment:
       PORT: ${PORT}
+      AUTH_SECRET: ${AUTH_SECRET}
       DB_DATABASE: ${DB_DATABASE}
       DB_DRIVER: ${DB_DRIVER}
       DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
@@ -17,12 +18,12 @@ services:
     volumes:
       - migrations:/app/migrations
     networks:
-      - internal
+      - db-internal
 
   db:
     image: postgres:alpine
     ports:
-      - ${DB_PORT}:5432
+      - ${DB_PORT}:${DB_PORT}
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
@@ -37,7 +38,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
-      - internal
+      - db-internal
 
   migrate:
     image: migrate/migrate:latest
@@ -50,7 +51,7 @@ services:
     volumes:
       - migrations:/migrations
     networks:
-      - internal
+      - db-internal
 
 
 volumes:
@@ -58,4 +59,4 @@ volumes:
   migrations:
 
 networks:
-  internal:
+  db-internal:
